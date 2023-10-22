@@ -1,14 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
+import DoorCount from './components/DoorCount';
 
 function App() {
   return (
     <div className="App">
-      <header>
-        blah
-      </header>
       <main>
-        <h1>hello</h1>
+        <DoorCount />
       </main>
     </div>
   );
