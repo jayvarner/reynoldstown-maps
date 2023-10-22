@@ -5,17 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "PUBLIC_URL='/reynoldstown-maps' vite",
-    "build": "PUBLIC_URL='/reynoldstown-maps' tsc && vite build",
+    "build": "PUBLIC_URL='/reynoldstown-maps' vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "predeploy": "PUBLIC_URL='/reynoldstown-maps' npm run build",
-    "deploy": "PUBLIC_URL='/reynoldstown-maps' gh-pages -d dist"
+    "deploy": "PUBLIC_URL='/reynoldstown-maps' gh-pages -d dist",
+    "build:css": "tailwindcss -m -i ./src/index.css -o ./src/generated.css"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.16",
     "leaflet": "^1.9.4",
+    "postcss": "^8.4.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-leaflet": "^4.2.1"
+    "react-leaflet": "^4.2.1",
+    "tailwindcss": "^3.3.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
@@ -27,7 +31,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "gh-pages": "^6.0.0",
-    "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
   }
