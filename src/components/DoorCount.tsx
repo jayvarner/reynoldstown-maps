@@ -72,7 +72,7 @@ const DoorCount = () => {
       />
       <Suspense
         fallback={
-          <p className="flex items-center justify-center h-screen text-4xl z-[99999] text-center">
+          <p className="flex items-center justify-center absolute w-screen h-screen text-4xl z-[99999] text-center">
             Loading
           </p>
         }
