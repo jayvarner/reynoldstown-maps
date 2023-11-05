@@ -69,7 +69,6 @@ const DoorCount = () => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         maxZoom={20}
-        opacity={0.5}
       />
       <Suspense
         fallback={
@@ -124,7 +123,7 @@ const DoorCount = () => {
       </Suspense>
       <MapRef />
       <Legend summary="Housing Units">
-        <table className="table-auto mb-4">
+        <table className="table-auto mb-4" airi-role="legend">
           <thead>
             <tr>
               <th colSpan={2} className="text-left">
