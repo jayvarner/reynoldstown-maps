@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 interface Props {
-  summary?: string
+  summary?: string;
   children: ReactNode;
 }
 
@@ -9,7 +9,7 @@ const Legend = ({ summary, children }: Props) => {
   return (
     <div className="w-1/3 mx-auto p-8 leaflet-top leaflet-right">
       <details
-        className="leaflet-control leaflet-bar w-3/4 bg-white bg-opacity-70 open:bg-opacity-90 open:ring-1 open:ring-black/5 open:shadow-lg p-6 rounded-lg"
+        className="leaflet-control leaflet-bar w-3/4 bg-white bg-opacity-70 open:bg-opacity-90 open:ring-1 open:ring-black/5 open:shadow-lg p-6 rounded-lg cursor-pointer transition-all duration-700"
         open
       >
         <summary className="leading-6 text-2xl text-slate-900 font-semibold select-none">

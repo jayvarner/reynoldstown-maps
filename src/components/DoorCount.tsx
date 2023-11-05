@@ -22,7 +22,7 @@ const BOUNDS: LatLngBounds = latLngBounds(
 );
 
 const PopupContent = (properties: GeoJsonProperties) => {
-  if (!properties) return;
+  if (!properties) return "";
 
   const rows: string[] = [];
   Object.keys(properties as { [key: string]: string }).forEach((prop) => {
@@ -57,7 +57,6 @@ const DoorCount = () => {
   >(undefined);
   const [houseCount, setHouseCount] = useState<number>(0);
   const [flatCount, setFlatCount] = useState<number>(0);
-  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,22 +87,6 @@ const DoorCount = () => {
 
     setHouseCount(houses.features.length);
   }, [apartments, houses]);
-
-  useEffect(() => {
-    setTotalCount(houseCount + flatCount);
-    console.log(
-      "🚀 ~ file: DoorCount.tsx:95 ~ DoorCount ~ apartmentCount:",
-      flatCount,
-      houseCount
-    );
-  }, [flatCount, houseCount]);
-
-  useEffect(() => {
-    console.log(
-      "🚀 ~ file: DoorCount.tsx:97 ~ DoorCount ~ totalCount:",
-      totalCount
-    );
-  }, [totalCount]);
 
   const onEachFeature = (feature: Feature, layer: Layer) => {
     if (feature.properties) {
