@@ -72,7 +72,11 @@ const DoorCount = () => {
         opacity={0.5}
       />
       <Suspense
-        fallback={<p className="flex items-center justify-center h-screen text-4xl z-[99999] text-center">Loading</p>}
+        fallback={
+          <p className="flex items-center justify-center h-screen text-4xl z-[99999] text-center">
+            Loading
+          </p>
+        }
       >
         <Await resolve={buildings.doors} errorElement={<p>Error</p>}>
           {(doors) => {
@@ -148,10 +152,13 @@ const DoorCount = () => {
             {(doors) => {
               return (
                 <table className="table-auto w-full">
+                  <caption className="caption-bottom text-sm">
+                    *<span className="italic">Source OpenStreetMap as of {doors.downloadedAt}</span>
+                  </caption>
                   <thead>
                     <tr>
                       <th colSpan={2} className="text-left">
-                        Total Counts
+                        Total Counts*
                       </th>
                     </tr>
                   </thead>

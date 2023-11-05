@@ -64,6 +64,8 @@ export const fetchDoors = async () => {
       }
     })
     .reduce((count: number, units) => count + (units || 0), 0);
+  const date = new Date();
+  const downloadedAt = date.toLocaleString('en-US', { timeZoneName: 'short' });
   const houseCount = houses.features.length;
-  return { houses, apartments, otherBuildings, flatCount, houseCount };
+  return { houses, apartments, otherBuildings, flatCount, houseCount, downloadedAt };
 };
