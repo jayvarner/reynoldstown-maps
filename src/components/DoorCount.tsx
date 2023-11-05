@@ -172,7 +172,7 @@ const DoorCount = () => {
                       </td>
                     </tr>
                     <tr className="border-b border-x border-slate-700">
-                      <td className="px-2 py-1">Apartment Units</td>
+                      <td className="px-2 py-1">Apartment/Condo Units</td>
                       <td className="px-2 py-1">
                         {doors.flatCount.toLocaleString("en", {
                           useGrouping: true,
