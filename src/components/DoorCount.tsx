@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
+import { useRef, Suspense } from "react";
+import { Await, useLoaderData } from "react-router-dom";
 import { MapContainer, GeoJSON, TileLayer, useMap } from "react-leaflet";
-import {
-  fetchApartments,
-  fetchHouses,
-  fetchOtherBuildings,
-} from "../data/buildings";
 import { latLngBounds, latLng } from "leaflet";
 import type { GeoJsonProperties, FeatureCollection, Feature } from "geojson";
 import type { LatLngBounds, Layer } from "leaflet";
@@ -46,50 +42,24 @@ const PopupContent = (properties: GeoJsonProperties) => {
 };
 
 const DoorCount = () => {
-  const [apartments, setApartments] = useState<FeatureCollection | undefined>(
-    undefined
-  );
-  const [houses, setHouses] = useState<FeatureCollection | undefined>(
-    undefined
-  );
-  const [otherBuildings, setOtherBuildings] = useState<
-    FeatureCollection | undefined
-  >(undefined);
-  const [houseCount, setHouseCount] = useState<number>(0);
-  const [flatCount, setFlatCount] = useState<number>(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const apartmentData = await fetchApartments();
-      const houseData = await fetchHouses();
-      const otherBuildingData = await fetchOtherBuildings();
-      setApartments(apartmentData);
-      setHouses(houseData);
-      setOtherBuildings(otherBuildingData);
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (!apartments || !houses) return;
-    setFlatCount(
-      apartments.features
-        .map((p) => {
-          if (
-            p.properties?.["building:flats"] &&
-            !isNaN(parseInt(p.properties["building:flats"]))
-          ) {
-            return parseInt(p.properties["building:flats"]);
-          }
-        })
-        .reduce((count: number, units) => count + (units || 0), 0)
-    );
-
-    setHouseCount(houses.features.length);
-  }, [apartments, houses]);
+  const buildings = useLoaderData() as {
+    doors: { [key: string]: FeatureCollection };
+  };
+  const houseCount = useRef<number>(0);
+  const flatCount = useRef<number>(0);
 
   const onEachFeature = (feature: Feature, layer: Layer) => {
     if (feature.properties) {
+      if (
+        feature.properties?.["building:flats"] &&
+        !isNaN(parseInt(feature.properties["building:flats"]))
+      ) {
+        flatCount.current =
+          flatCount.current + parseInt(feature.properties["building:flats"]);
+      }
+      if (feature.properties?.building === "house") {
+        houseCount.current = houseCount.current + 1;
+      }
       layer.bindPopup(PopupContent(feature.properties));
     }
   };
@@ -101,52 +71,62 @@ const DoorCount = () => {
         maxZoom={20}
         opacity={0.5}
       />
-      {houses && (
-        <GeoJSON
-          data={houses}
-          style={() => {
-            return {
-              fillColor: "#162080",
-              fillOpacity: 1,
-              color: "darkgray",
-              weight: 1,
-            };
+      <Suspense
+        fallback={<p className="flex items-center justify-center h-screen text-4xl z-[99999] text-center">Loading</p>}
+      >
+        <Await resolve={buildings.doors} errorElement={<p>Error</p>}>
+          {(doors) => {
+            return (
+              <>
+                <GeoJSON
+                  data={doors.houses}
+                  style={() => {
+                    return {
+                      fillColor: "#162080",
+                      fillOpacity: 1,
+                      color: "darkgray",
+                      weight: 1,
+                    };
+                  }}
+                  onEachFeature={onEachFeature}
+                />
+                <GeoJSON
+                  data={doors.apartments}
+                  style={() => {
+                    return {
+                      fillColor: "#fdd32b",
+                      fillOpacity: 1,
+                      color: "darkgray",
+                      weight: 1,
+                    };
+                  }}
+                  onEachFeature={onEachFeature}
+                />
+                <GeoJSON
+                  data={doors.otherBuildings}
+                  style={() => {
+                    return {
+                      fillColor: "darkgray",
+                      fillOpacity: 0.75,
+                      color: "darkgray",
+                    };
+                  }}
+                  onEachFeature={onEachFeature}
+                />
+              </>
+            );
           }}
-          onEachFeature={onEachFeature}
-        />
-      )}
-      {apartments && (
-        <GeoJSON
-          data={apartments}
-          style={() => {
-            return {
-              fillColor: "#fdd32b",
-              fillOpacity: 1,
-              color: "darkgray",
-              weight: 1,
-            };
-          }}
-          onEachFeature={onEachFeature}
-        />
-      )}
-      {otherBuildings && (
-        <GeoJSON
-          data={otherBuildings}
-          style={() => {
-            return {
-              fillColor: "darkgray",
-              fillOpacity: 0.75,
-              color: "darkgray",
-            };
-          }}
-          onEachFeature={onEachFeature}
-        />
-      )}
+        </Await>
+      </Suspense>
       <MapRef />
       <Legend summary="Housing Units">
         <table className="table-auto mb-4">
           <thead>
-            <th colSpan={2} className="text-left">Legend</th>
+            <tr>
+              <th colSpan={2} className="text-left">
+                Legend
+              </th>
+            </tr>
           </thead>
           <tbody>
             <tr>
@@ -163,33 +143,52 @@ const DoorCount = () => {
             </tr>
           </tbody>
         </table>
-        <table className="table-auto w-full">
-          <thead>
-            <th colSpan={2} className="text-left">Total Counts</th>
-          </thead>
-          <tbody>
-            <tr className="border border-slate-700">
-              <td className="px-2 py-1">Single Family Houses</td>
-              <td className="px-2 py-1">
-                {houseCount.toLocaleString("en", { useGrouping: true })}
-              </td>
-            </tr>
-            <tr className="border-b border-x border-slate-700">
-              <td className="px-2 py-1">Apartment Units</td>
-              <td className="px-2 py-1">
-                {flatCount.toLocaleString("en", { useGrouping: true })}
-              </td>
-            </tr>
-            <tr className="border-b border-x border-slate-700">
-              <td className="px-2 py-1">Total Housing Units</td>
-              <td className="px-2 py-1">
-                {(houseCount + flatCount).toLocaleString("en", {
-                  useGrouping: true,
-                })}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <Suspense fallback={<p>Loading</p>}>
+          <Await resolve={buildings.doors} errorElement={<p>Error</p>}>
+            {(doors) => {
+              return (
+                <table className="table-auto w-full">
+                  <thead>
+                    <tr>
+                      <th colSpan={2} className="text-left">
+                        Total Counts
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-slate-700">
+                      <td className="px-2 py-1">Single Family Houses</td>
+                      <td className="px-2 py-1">
+                        {doors.houseCount.toLocaleString("en", {
+                          useGrouping: true,
+                        })}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-x border-slate-700">
+                      <td className="px-2 py-1">Apartment Units</td>
+                      <td className="px-2 py-1">
+                        {doors.flatCount.toLocaleString("en", {
+                          useGrouping: true,
+                        })}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-x border-slate-700">
+                      <td className="px-2 py-1">Total Housing Units</td>
+                      <td className="px-2 py-1">
+                        {(doors.houseCount + doors.flatCount).toLocaleString(
+                          "en",
+                          {
+                            useGrouping: true,
+                          }
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              );
+            }}
+          </Await>
+        </Suspense>
       </Legend>
     </MapContainer>
   );

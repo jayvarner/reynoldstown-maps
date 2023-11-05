@@ -1,4 +1,4 @@
-import type { GeoJSON } from "geojson";
+import type { GeoJSON as TGeoJSON } from "geojson";
 import osmtogeojson from "osmtogeojson";
 
 const reynoldstown =
@@ -15,14 +15,14 @@ const query = (nwr: string) => {
       );
     );
     out geom;
-  `)
-}
+  `);
+};
 
 const getGeoJSON = async (result: Response) => {
   const data = await result.json();
-  const geojsonResponse: GeoJSON = osmtogeojson(data);
+  const geojsonResponse: TGeoJSON = osmtogeojson(data);
   return geojsonResponse;
-}
+};
 
 export const fetchApartments = async () => {
   const result = await fetch("https://overpass-api.de/api/interpreter", {
@@ -43,7 +43,27 @@ export const fetchHouses = async () => {
 export const fetchOtherBuildings = async () => {
   const result = await fetch("https://overpass-api.de/api/interpreter", {
     method: "POST",
-    body: `data=${query('["building"~".*"]["building"!="house"]["building"!="apartments"]')}`,
+    body: `data=${query(
+      '["building"~".*"]["building"!="house"]["building"!="apartments"]'
+    )}`,
   });
   return await getGeoJSON(result);
+};
+
+export const fetchDoors = async () => {
+  const houses = await fetchHouses();
+  const apartments = await fetchApartments();
+  const otherBuildings = await fetchOtherBuildings();
+  const flatCount = apartments.features
+    .map((building) => {
+      if (
+        building.properties?.["building:flats"] &&
+        !isNaN(parseInt(building.properties["building:flats"]))
+      ) {
+        return parseInt(building.properties["building:flats"]);
+      }
+    })
+    .reduce((count: number, units) => count + (units || 0), 0);
+  const houseCount = houses.features.length;
+  return { houses, apartments, otherBuildings, flatCount, houseCount };
 };
