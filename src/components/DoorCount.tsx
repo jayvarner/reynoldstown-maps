@@ -1,21 +1,31 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, GeoJSON, TileLayer, useMap } from "react-leaflet";
-import { houses } from "../data/houses";
-import { apartments } from "../data/apartments";
-import { otherBuildings } from "../data/otherBuildings";
+import {
+  fetchApartments,
+  fetchHouses,
+  fetchOtherBuildings,
+} from "../data/buildings";
+import { latLngBounds, latLng } from "leaflet";
+import type { GeoJsonProperties, FeatureCollection, Feature } from "geojson";
+import type { LatLngBounds, Layer } from "leaflet";
+import Legend from "./Legend";
 
 const MapRef = () => {
   const map = useMap();
-  map.fitBounds([
-    [33.7433675899999983, -84.36263325000000179],
-    [33.7599344400000021, -84.3491589900000065],
-  ]);
+  map.setMaxZoom(20);
   return null;
 };
 
-const PopupContent = (properties) => {
-  const rows = [];
-  Object.keys(properties).forEach((prop) => {
+const BOUNDS: LatLngBounds = latLngBounds(
+  latLng(33.7433675899999983, -84.36263325000000179),
+  latLng(33.7599344400000021, -84.3491589900000065)
+);
+
+const PopupContent = (properties: GeoJsonProperties) => {
+  if (!properties) return;
+
+  const rows: string[] = [];
+  Object.keys(properties as { [key: string]: string }).forEach((prop) => {
     rows.push(
       `<tr>
           <td class='border border-slate-700 p-2'>
@@ -36,61 +46,168 @@ const PopupContent = (properties) => {
 };
 
 const DoorCount = () => {
-  const onEachFeature = (feature, layer) => {
+  const [apartments, setApartments] = useState<FeatureCollection | undefined>(
+    undefined
+  );
+  const [houses, setHouses] = useState<FeatureCollection | undefined>(
+    undefined
+  );
+  const [otherBuildings, setOtherBuildings] = useState<
+    FeatureCollection | undefined
+  >(undefined);
+  const [houseCount, setHouseCount] = useState<number>(0);
+  const [flatCount, setFlatCount] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const apartmentData = await fetchApartments();
+      const houseData = await fetchHouses();
+      const otherBuildingData = await fetchOtherBuildings();
+      setApartments(apartmentData);
+      setHouses(houseData);
+      setOtherBuildings(otherBuildingData);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!apartments || !houses) return;
+    setFlatCount(
+      apartments.features
+        .map((p) => {
+          if (
+            p.properties?.["building:flats"] &&
+            !isNaN(parseInt(p.properties["building:flats"]))
+          ) {
+            return parseInt(p.properties["building:flats"]);
+          }
+        })
+        .reduce((count: number, units) => count + (units || 0), 0)
+    );
+
+    setHouseCount(houses.features.length);
+  }, [apartments, houses]);
+
+  useEffect(() => {
+    setTotalCount(houseCount + flatCount);
+    console.log(
+      "🚀 ~ file: DoorCount.tsx:95 ~ DoorCount ~ apartmentCount:",
+      flatCount,
+      houseCount
+    );
+  }, [flatCount, houseCount]);
+
+  useEffect(() => {
+    console.log(
+      "🚀 ~ file: DoorCount.tsx:97 ~ DoorCount ~ totalCount:",
+      totalCount
+    );
+  }, [totalCount]);
+
+  const onEachFeature = (feature: Feature, layer: Layer) => {
     if (feature.properties) {
       layer.bindPopup(PopupContent(feature.properties));
     }
   };
   return (
-    <MapContainer center={[33.7503056, -84.3553056]} zoom={16} maxZoom={20}>
+    <MapContainer bounds={BOUNDS}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         maxZoom={20}
         opacity={0.5}
       />
-      <GeoJSON
-        key="f5264356-a544-5963-9d96-fc8cb295e71a"
-        data={houses}
-        style={() => {
-          return {
-            fillColor: "#162080",
-            fillOpacity: 1,
-            color: "darkgray",
-            weight: 1,
-          };
-        }}
-        onEachFeature={onEachFeature}
-      />
-      <GeoJSON
-        key="18e3c0a7-725b-5b4d-8310-8696e4990609"
-        data={apartments}
-        style={() => {
-          return {
-            fillColor: "#fdd32b",
-            fillOpacity: 1,
-            color: "darkgray",
-            weight: 1,
-          };
-        }}
-        onEachFeature={onEachFeature}
-      />
-      <GeoJSON
-        key="757766a7-b8df-5e88-85b7-728125352e41"
-        data={otherBuildings}
-        style={() => {
-          return {
-            fillColor: "darkgray",
-            fillOpacity: 0.75,
-            color: "darkgray",
-          };
-        }}
-        onEachFeature={onEachFeature}
-      />
-      {/* <GeoJSON key='e514b08c-48a4-5eb5-8bb7-0c1ba030fc4c'
-        data={roads}
-      /> */}
+      {houses && (
+        <GeoJSON
+          data={houses}
+          style={() => {
+            return {
+              fillColor: "#162080",
+              fillOpacity: 1,
+              color: "darkgray",
+              weight: 1,
+            };
+          }}
+          onEachFeature={onEachFeature}
+        />
+      )}
+      {apartments && (
+        <GeoJSON
+          data={apartments}
+          style={() => {
+            return {
+              fillColor: "#fdd32b",
+              fillOpacity: 1,
+              color: "darkgray",
+              weight: 1,
+            };
+          }}
+          onEachFeature={onEachFeature}
+        />
+      )}
+      {otherBuildings && (
+        <GeoJSON
+          data={otherBuildings}
+          style={() => {
+            return {
+              fillColor: "darkgray",
+              fillOpacity: 0.75,
+              color: "darkgray",
+            };
+          }}
+          onEachFeature={onEachFeature}
+        />
+      )}
       <MapRef />
+      <Legend summary="Housing Units">
+        <table className="table-auto mb-4">
+          <thead>
+            <th colSpan={2} className="text-left">Legend</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ background: "#162080", color: "#162080" }}>---</td>
+              <td className="pl-2">Single Family Houses</td>
+            </tr>
+            <tr>
+              <td className="bg-rtown-yellow text-rtown-yellow">---</td>
+              <td className="pl-2">Apartment Buildings</td>
+            </tr>
+            <tr>
+              <td className="bg-gray-400 text-gray-400">---</td>
+              <td className="pl-2">Other Buildings</td>
+            </tr>
+          </tbody>
+        </table>
+        <table className="table-auto w-full">
+          <thead>
+            <th colSpan={2} className="text-left">Total Counts</th>
+          </thead>
+          <tbody>
+            <tr className="border border-slate-700">
+              <td className="px-2 py-1">Single Family Houses</td>
+              <td className="px-2 py-1">
+                {houseCount.toLocaleString("en", { useGrouping: true })}
+              </td>
+            </tr>
+            <tr className="border-b border-x border-slate-700">
+              <td className="px-2 py-1">Apartment Units</td>
+              <td className="px-2 py-1">
+                {flatCount.toLocaleString("en", { useGrouping: true })}
+              </td>
+            </tr>
+            <tr className="border-b border-x border-slate-700">
+              <td className="px-2 py-1">Total Housing Units</td>
+              <td className="px-2 py-1">
+                {(houseCount + flatCount).toLocaleString("en", {
+                  useGrouping: true,
+                })}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </Legend>
     </MapContainer>
   );
 };

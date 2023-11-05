@@ -1,8 +1,7 @@
-export const houses = {
+import type { GeoJSON } from "geojson";
+
+export const houses: GeoJSON = {
   "type": "FeatureCollection",
-  "generator": "overpass-turbo",
-  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-  "timestamp": "2023-10-22T17:55:45Z",
   "features": [
     {
       "type": "Feature",

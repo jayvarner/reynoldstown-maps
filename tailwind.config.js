@@ -4,7 +4,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "rtown-blue": "#162080",
+        "rtown-yellow": "#fdd32b"
+      },
+    },
   },
   plugins: [],
   safelist: [
