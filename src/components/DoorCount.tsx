@@ -138,7 +138,7 @@ const DoorCount = () => {
             </tr>
             <tr>
               <td className="bg-rtown-yellow text-rtown-yellow">---</td>
-              <td className="pl-2">Apartment Buildings</td>
+              <td className="pl-2">Apartment/Condo Buildings</td>
             </tr>
             <tr>
               <td className="bg-gray-400 text-gray-400">---</td>
