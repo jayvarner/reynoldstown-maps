@@ -122,7 +122,7 @@ const DoorCount = () => {
         </Await>
       </Suspense>
       <MapRef />
-      <Legend summary="Housing Units">
+      <Legend summary="Door Count">
         <table className="table-auto mb-4" airi-role="legend">
           <thead>
             <tr>
