@@ -123,7 +123,7 @@ const DoorCount = () => {
       </Suspense>
       <MapRef />
       <Legend summary="Door Count">
-        <table className="table-auto mb-4" airi-role="legend">
+        <table className="table-auto mb-4 hidden md:block" airi-role="legend">
           <thead>
             <tr>
               <th colSpan={2} className="text-left">
@@ -151,18 +151,21 @@ const DoorCount = () => {
             {(doors) => {
               return (
                 <table className="table-auto w-full">
-                  <caption className="caption-bottom text-sm">
-                    *<span className="italic">Source OpenStreetMap as of {doors.downloadedAt}</span>
+                  <caption className="caption-bottom text-xs md:text-sm mt-2 md:mt-0">
+                    *
+                    <span className="italic">
+                      Source OpenStreetMap as of {doors.downloadedAt}
+                    </span>
                   </caption>
                   <thead>
                     <tr>
-                      <th colSpan={2} className="text-left">
+                      <th colSpan={2} className="text-left text-sm md:text-base">
                         Total Counts*
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border border-slate-700">
+                    <tr className="border border-slate-700 hidden md:block">
                       <td className="px-2 py-1">Single Family Houses</td>
                       <td className="px-2 py-1">
                         {doors.houseCount.toLocaleString("en", {
@@ -170,7 +173,7 @@ const DoorCount = () => {
                         })}
                       </td>
                     </tr>
-                    <tr className="border-b border-x border-slate-700">
+                    <tr className="border-b border-x border-slate-700 hidden md:block">
                       <td className="px-2 py-1">Apartment/Condo Units</td>
                       <td className="px-2 py-1">
                         {doors.flatCount.toLocaleString("en", {
@@ -178,7 +181,7 @@ const DoorCount = () => {
                         })}
                       </td>
                     </tr>
-                    <tr className="border-b border-x border-slate-700">
+                    <tr className="border-b border-x border-slate-700 hidden md:block">
                       <td className="px-2 py-1">Total Housing Units</td>
                       <td className="px-2 py-1">
                         {(doors.houseCount + doors.flatCount).toLocaleString(
@@ -187,6 +190,30 @@ const DoorCount = () => {
                             useGrouping: true,
                           }
                         )}
+                      </td>
+                    </tr>
+                    <tr className="text-white bg-rtown-blue md:hidden text-sm">
+                      <td className="px-2">
+                        Single Family
+                      </td>
+                      <td className="px-2">
+                        {doors.houseCount.toLocaleString()}
+                      </td>
+                    </tr>
+                    <tr className="md:hidden bg-rtown-yellow text-sm text-black">
+                      <td className="px-2">
+                          Apartment/Condo Units
+                      </td>
+                      <td className="px-2">
+                        {doors.flatCount.toLocaleString()}
+                      </td>
+                    </tr>
+                    <tr className="md:hidden text-sm font-semibold">
+                      <td className="px-2">
+                        Total
+                      </td>
+                      <td className="px-2">
+                        {(doors.houseCount + doors.flatCount).toLocaleString()}
                       </td>
                     </tr>
                   </tbody>
