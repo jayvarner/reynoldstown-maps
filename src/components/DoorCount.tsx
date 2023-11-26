@@ -1,10 +1,11 @@
 import { useRef, Suspense } from "react";
 import { Await, useLoaderData } from "react-router-dom";
-import { MapContainer, GeoJSON, TileLayer, useMap } from "react-leaflet";
-import { latLngBounds, latLng } from "leaflet";
-import type { GeoJsonProperties, FeatureCollection, Feature } from "geojson";
-import type { LatLngBounds, Layer } from "leaflet";
+import { GeoJSON, useMap } from "react-leaflet";
 import Legend from "./Legend";
+import BaseMap from "./BaseMap";
+import PopupContent from "../utils/PopupContent";
+import type { FeatureCollection, Feature } from "geojson";
+import type { Layer } from "leaflet";
 
 const MapRef = () => {
   const map = useMap();
@@ -12,34 +13,6 @@ const MapRef = () => {
   return null;
 };
 
-const BOUNDS: LatLngBounds = latLngBounds(
-  latLng(33.7433675899999983, -84.36263325000000179),
-  latLng(33.7599344400000021, -84.3491589900000065)
-);
-
-const PopupContent = (properties: GeoJsonProperties) => {
-  if (!properties) return "";
-
-  const rows: string[] = [];
-  Object.keys(properties as { [key: string]: string }).forEach((prop) => {
-    rows.push(
-      `<tr>
-          <td class='border border-slate-700 p-2'>
-            ${prop}
-          </td>
-          <td class='border border-slate-700 p-2'>
-            ${properties[prop]}
-          </td>
-        </tr>`
-    );
-  });
-
-  return `<table class='border-collapse border border-slate-500'>
-      <tbody class="table-auto">
-        ${rows.join("")}
-      </tbody>
-    </table>`;
-};
 
 const DoorCount = () => {
   const buildings = useLoaderData() as {
@@ -64,12 +37,7 @@ const DoorCount = () => {
     }
   };
   return (
-    <MapContainer bounds={BOUNDS}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        maxZoom={20}
-      />
+    <BaseMap>
       <Suspense
         fallback={
           <p className="flex items-center justify-center absolute w-screen h-screen text-4xl z-[99999] text-center">
@@ -223,7 +191,7 @@ const DoorCount = () => {
           </Await>
         </Suspense>
       </Legend>
-    </MapContainer>
+    </BaseMap>
   );
 };
 

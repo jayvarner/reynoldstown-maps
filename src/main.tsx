@@ -5,6 +5,7 @@ import { fetchDoors } from "./data/buildings";
 import DoorCount from "./components/DoorCount";
 import "leaflet/dist/leaflet.css";
 import "./index.css";
+import DoorCount1928 from "./components/DoorCount1928";
 
 const doorCountLoader = async () => {
   const doors = fetchDoors();
@@ -17,6 +18,15 @@ const router = createBrowserRouter(
       path: "/",
       loader: doorCountLoader,
       element: <DoorCount />,
+    },
+    {
+      path: "/doors/present",
+      loader: doorCountLoader,
+      element: <DoorCount />,
+    },
+    {
+      path: "/doors/1928",
+      element: <DoorCount1928 />,
     },
   ],
   {
