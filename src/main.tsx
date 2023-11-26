@@ -30,7 +30,7 @@ const router = createBrowserRouter(
     },
   ],
   {
-    basename: "/reynoldstown-maps",
+    basename: "/reynoldstown-maps/",
   }
 );
 
