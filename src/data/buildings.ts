@@ -35,7 +35,7 @@ export const fetchApartments = async () => {
 export const fetchHouses = async () => {
   const result = await fetch("https://overpass-api.de/api/interpreter", {
     method: "POST",
-    body: `data=${query('["building"="house"]')}`,
+    body: `data=${query('["building"~"house|semidetached_house"]')}`,
   });
   return await getGeoJSON(result);
 };
@@ -44,7 +44,7 @@ export const fetchOtherBuildings = async () => {
   const result = await fetch("https://overpass-api.de/api/interpreter", {
     method: "POST",
     body: `data=${query(
-      '["building"~".*"]["building"!="house"]["building"!="apartments"]'
+      '["building"~".*"]["building"!="house"]["building"!="apartments"]["building"!="semidetached_house"]'
     )}`,
   });
   return await getGeoJSON(result);
