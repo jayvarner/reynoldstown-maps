@@ -6,10 +6,11 @@ import DoorCount from "./components/DoorCount";
 import "leaflet/dist/leaflet.css";
 import "./index.css";
 import DoorCount1928 from "./components/DoorCount1928";
+import ReidsSeeds from "./components/ReidsSeeds";
 
 const doorCountLoader = async () => {
   const doors = fetchDoors();
-  return defer({doors});
+  return defer({ doors });
 };
 
 const router = createBrowserRouter(
@@ -27,6 +28,10 @@ const router = createBrowserRouter(
     {
       path: "/doors/1928",
       element: <DoorCount1928 />,
+    },
+    {
+      path: "reids-seeds",
+      element: <ReidsSeeds />,
     },
   ],
   {
