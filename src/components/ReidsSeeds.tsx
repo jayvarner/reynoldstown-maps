@@ -6,14 +6,14 @@ import type { Feature } from "geojson";
 import type { LatLng } from "leaflet";
 
 const cosmosIcon = icon({
-  iconUrl: "/images/cosmos.svg",
+  iconUrl: "/reynoldstown-maps/images/cosmos.svg",
   iconSize: [32, 37],
   iconAnchor: [16, 37],
   popupAnchor: [0, -28],
 });
 
 const ReidsSeeds = () => {
-  const pointToLayer = (feature: Feature, latlng: LatLng) => {
+  const pointToLayer = (_: Feature, latlng: LatLng) => {
     return marker(latlng, { icon: cosmosIcon });
   };
 
